@@ -131,53 +131,6 @@ void buscaAhoCorasick(const string &texto, const vector<string> &padroes)
     }
 }
 
-// ---------- CIFRA ----------
-string aplicarCifra(const string &texto, const string &chave, bool decifrar = false)
-{
-    string alfabeto = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    unordered_map<char, char> mapa;
-
-    if (!decifrar)
-        for (int i = 0; i < 26; ++i)
-            mapa[alfabeto[i]] = chave[i];
-    else
-        for (int i = 0; i < 26; ++i)
-            mapa[chave[i]] = alfabeto[i];
-
-    string resultado;
-    for (char c : texto)
-    {
-        char maiusculo = toupper(c);
-        resultado += isalpha(maiusculo) ? mapa[maiusculo] : c;
-    }
-    return resultado;
-}
-
-string quebrarCifra(const string &criptografado)
-{
-    string frequencia = "ETAOINSHRDLCUMWFGYPBVKJXQZ";
-    unordered_map<char, int> contagem;
-    for (char c : criptografado)
-        if (isalpha(c))
-            contagem[toupper(c)]++;
-
-    vector<pair<int, char>> ordenado;
-    for (auto &[c, f] : contagem)
-        ordenado.emplace_back(f, c);
-    sort(ordenado.rbegin(), ordenado.rend());
-
-    unordered_map<char, char> mapa;
-    for (int i = 0; i < ordenado.size() && i < frequencia.size(); ++i)
-        mapa[ordenado[i].second] = frequencia[i];
-
-    string tentativa;
-    for (char c : criptografado)
-    {
-        char maiusculo = toupper(c);
-        tentativa += isalpha(maiusculo) ? mapa[maiusculo] : c;
-    }
-    return tentativa;
-}
 
 // ---------- DISTANCIA DE EDICAO ----------
 int distanciaLevenshtein(const string &a, const string &b)
@@ -231,16 +184,7 @@ void verificarErros(const string &texto, const set<string> &dicionario)
         cout << "Palavra desconhecida: " << palavra << endl;
 }
 
-void sugerirCorrecao(const string &palavra, const set<string> &dicionario)
-{
-    vector<pair<int, string>> sugestoes;
-    for (const string &w : dicionario)
-        sugestoes.emplace_back(distanciaLevenshtein(palavra, w), w);
-    sort(sugestoes.begin(), sugestoes.end());
-    cout << "Sugestoes para \"" << palavra << "\":" << endl;
-    for (int i = 0; i < min(5, (int)sugestoes.size()); ++i)
-        cout << "- " << sugestoes[i].second << " (distancia " << sugestoes[i].first << ")" << endl;
-}
+
 
 // ---------- MAIN ----------
 int main()
@@ -259,7 +203,7 @@ int main()
 
     while (true)
     {
-        cout << "\nMENU:\n1. Busca KMP\n2. Busca com coringa\n3. Busca multipla (Aho-Corasick)\n4. Cifrar/quebrar cifra\n5. Verificar palavras\n6. Sugerir correcao\n0. Sair\nEscolha: ";
+        cout << "\nMENU:\n1. Busca KMP\n2. Busca com coringa\n3. Busca multipla (Aho-Corasick)\n4. Verificar palavras\n0. Sair\nEscolha: ";
         int opcao;
         cin >> opcao;
         cin.ignore();
@@ -295,22 +239,7 @@ int main()
             buscaAhoCorasick(texto, padroes);
         }
         else if (opcao == 4)
-        {
-            string chave = "QWERTYUIOPASDFGHJKLZXCVBNM";
-            string cifrado = aplicarCifra(texto, chave);
-            cout << "Texto cifrado: " << cifrado << endl;
-            cout << "Texto decifrado com chave: " << aplicarCifra(cifrado, chave, true) << endl;
-            cout << "Tentando quebrar: " << quebrarCifra(cifrado) << endl;
-        }
-        else if (opcao == 5)
             verificarErros(texto, dicionario);
-        else if (opcao == 6)
-        {
-            string palavra;
-            cout << "Digite a palavra: ";
-            getline(cin, palavra);
-            sugerirCorrecao(palavra, dicionario);
-        }
     }
 
     return 0;
